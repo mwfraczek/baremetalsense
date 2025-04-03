@@ -4,7 +4,7 @@ SHELL = /bin/sh
 #toolchain setup 
 CC = arm-none-eabi-gcc
 OBJCOPY = arm-none-eabi-objcopy
-CFLAGS = -mcpu=cortex-m4 -mthumb -Wall -Wextra -nostdlib 
+CFLAGS = -mcpu=cortex-m4 -mthumb -Wall -Wextra -nostdlib -Iinc 
 LDFLAGS = -Tlinker.ld
 
 #default goal of makefiles is the first target of the first rule of the first makefile
