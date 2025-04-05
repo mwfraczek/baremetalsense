@@ -20,7 +20,17 @@ GPIOB_MODER &= ~(0x3 << (LED_PIN14 * 2)); // Reset state - clears bits for PB14
 GPIOB_MODER |= (0x1 << (LED_PIN14 * 2));  // Set PB14 to output mode
 
 while (1) {
-	GPIOB_ODR ^= (1 << LED_PIN7);  // Toggle the bit of PB7
-	GPIOB_ODR ^= (1 << LED_PIN14); // Toggle PB14 bit high 
-	}
+if (USART3_ISR & (1 << 5)) {           // RXNE
+        char c = USART3_RDR;           // Read GPS byte
+        GPIOB_ODR ^= (1 << LED_PIN7);  // Toggle LED
+	char gps_data[80];
+	static int i = 0;
+	gps_data[i] = c;
+	i++;
+}	
+
+else if (USART3_ISR & (0 << 5)) {
+	GPIOB_ODR ^= (1 << LED_PIN14); // Toggle LED
+}
+}
 }
