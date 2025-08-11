@@ -5,6 +5,8 @@
 
 #define RCC_AHB2ENR   (*(volatile uint32_t*)0x4002104C) // clock - Port B/F GPIO 
 #define RCC_APB1ENR1  (*(volatile uint32_t*)0x40021058) // clock - Port B I2C1
+#define RCC_CR        (*(volatile uint32_t*)0x40021000) // clock - HSI16 oscillator 
+#define RCC_CCIPR     (*(volatile uint32_t*)0x40021088) // clock source selection 
 
 #define GPIOB_MODER   (*(volatile uint32_t*)0x48000400) // GPIOB base address/mode
 #define GPIOB_OTYPER  (*(volatile uint32_t*)0x48000404) // Type - Open drain vs push/pull
