@@ -3,19 +3,32 @@
 #include "peripherals.h"
 #include "bmp390.h"
 
-void bmp390_setup(uint8_t pressure_en, uint8_t temp_en, uint8_t bmp_mode, uint8_t bmp_odr){
-uint8_t pwr_ctrl = (pressure_en << 0) | (temp_en << 1) | (bmp_mode << 4);
-i2c1_write(BMP_SLAVE_ADDR, PWR_CTRL_ADDR, pwr_ctrl);
-delay_ms(1);
-i2c1_write(BMP_SLAVE_ADDR, ODR_ADDR, bmp_odr);
+BMP_Error bmp390_setup(uint8_t pressure_en, uint8_t temp_en, uint8_t bmp_mode, uint8_t bmp_odr){
+	uint8_t pwr_ctrl = (pressure_en << 0) | (temp_en << 1) | (bmp_mode << 4);
+	int err = i2c1_write(BMP_SLAVE_ADDR, PWR_CTRL_ADDR, pwr_ctrl);
+	if (err != BMP_OK) {
+		return BMP_NACK; }
+	err = i2c1_write(BMP_SLAVE_ADDR, ODR_ADDR, bmp_odr);
+	if (err != BMP_OK) {
+		return BMP_NACK; }
+	return BMP_OK; 
 }
 
-void bmp390_status_check(void) {
-uint8_t bmp_status;
-i2c1_read(BMP_SLAVE_ADDR, BMP_STATUS_REG, &bmp_status, 1);
+
+BMP_Error bmp390_status_check(void) {
+	uint8_t bmp_status;
+	int err = i2c1_read(BMP_SLAVE_ADDR, BMP_STATUS_REG, &bmp_status, 1);
+	if (err != 0) {
+		return BMP_NACK; }
+	if ((bmp_status & 0x60) != 0x60) {
+		return BMP_NOT_READY; }
+	return BMP_OK; 
 }
 
-void bmp390_read_data(void) {
-uint8_t bmp_data[6];
-i2c1_read(BMP_SLAVE_ADDR, BMP_DATA_ADDR, bmp_data, 6);
+BMP_Error bmp390_read_data(void) {
+	uint8_t bmp_data[6];
+	int err = i2c1_read(BMP_SLAVE_ADDR, BMP_DATA_ADDR, bmp_data, 6);
+	if (err != 0) {
+		return BMP_NACK; }
+	return BMP_OK; 
 }
