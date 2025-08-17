@@ -13,8 +13,8 @@ all: bin/main.elf bin/main.bin
 bin/main.bin: bin/main.elf
 	$(OBJCOPY) -O binary bin/main.elf bin/main.bin
 
-bin/main.elf: build/peripherals.o build/bmp390.o build/i2c.o build/main.o build/system_stm32l496.o build/startup_stm32l496xx.o
-	$(CC) $(CFLAGS) $(LDFLAGS) -o bin/main.elf build/peripherals.o build/bmp390.o build/i2c.o build/main.o build/system_stm32l496.o build/startup_stm32l496xx.o
+bin/main.elf: build/peripherals.o build/bmp390.o build/i2c.o build/main.o 
+	$(CC) $(CFLAGS) $(LDFLAGS) -o bin/main.elf build/peripherals.o build/bmp390.o build/i2c.o build/main.o
 
 build/peripherals.o: src/peripherals.c
 	$(CC) $(CFLAGS) -c src/peripherals.c -o build/peripherals.o
@@ -27,12 +27,6 @@ build/i2c.o: src/i2c.c
 
 build/main.o: src/main.c
 	$(CC) $(CFLAGS) -c src/main.c -o build/main.o
-
-build/system_stm32l496.o: src/system_stm32l496.c
-	$(CC) $(CFLAGS) -c src/system_stm32l496.c -o build/system_stm32l496.o
-
-build/startup_stm32l496xx.o: src/startup_stm32l496xx.s
-	$(CC) $(CFLAGS) -x assembler-with-cpp -c src/startup_stm32l496xx.s -o build/startup_stm32l496xx.o
 
 #cleans project directory
 .PHONY: clean
