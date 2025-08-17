@@ -9,9 +9,9 @@ BUILD INSTRUCTIONS:
 - Install ARM GCC toolchain (arm-none-eabi-gcc) on your system (e.g., sudo apt install gcc-arm-none-eabi).
 - Clone the repo: git clone https://github.com/mwfraczek/flightcontrol.git
 - Build project with Make. 
-- Flash with STM32CubeIDE or st-flash: (e.g., st-flash --reset write bin/main.bin 0x08000000.
+- Flash with STM32CubeIDE or st-flash: (e.g., st-flash --reset write bin/main.bin 0x08000000).
 
 DEPENDENCIES:
-- Toolchain: ARM GCC (arm-none-eabi-gcc) GNU Make, objcopy (from binutils-arm-none-eabi).
-- Hardware: STM32L496 Nucleo board, BMP390 sensor.
-- No external libs, zero runtime deps. STM32CubeIDE optional for debugging.
+- Toolchain: ARM GCC (arm-none-eabi-gcc), GNU Make, GNU Debugger (arm-none-eabi-gdb), ST-LINK, binutils. 
+- Hardware: STM32L496 Nucleo board, BMP390 sensor. 
+- No external libs, zero runtime deps. STM32CubeIDE optional for step-thru debugging.
