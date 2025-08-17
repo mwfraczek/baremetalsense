@@ -7,7 +7,7 @@ HARDWARE SETUP:
 
 BUILD INSTRUCTIONS:
 - Install ARM GCC toolchain (arm-none-eabi-gcc) on your system (e.g., sudo apt install gcc-arm-none-eabi).
-- Clone the repo: git clone https://github.com/mwfraczek/flightcontrol.git
+- Clone the repo: 'git clone https://github.com/mwfraczek/flightcontrol.git'
 - Build project with Make. 
 - Flash with STM32CubeIDE or st-flash: (e.g., st-flash --reset write bin/main.bin 0x08000000).
 
