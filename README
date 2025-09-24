@@ -1,3 +1,5 @@
+09/24/2025 UPDATE - Ongoing project development. Currently debugging multi-byte read hang fault. 
+
 PROJECT OVERVIEW: 
 This project is bare-metal firmware for reading pressure and temperature data from a BMP390 sensor via I2C protocol with the STM32L496 Nucleo board microcontroller.
 
