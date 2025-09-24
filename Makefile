@@ -13,7 +13,7 @@ all: bin/main.elf bin/main.bin
 bin/main.bin: bin/main.elf
 	$(OBJCOPY) -O binary bin/main.elf bin/main.bin
 
-bin/main.elf: build/peripherals.o build/bmp390.o build/i2c.o build/main.o build/startup.o
+bin/main.elf: build/peripherals.o build/bmp390.o build/i2c.o build/main.o build/startup.o 
 	$(CC) $(CFLAGS) $(LDFLAGS) -o bin/main.elf build/peripherals.o build/bmp390.o build/i2c.o build/main.o build/startup.o
 
 build/peripherals.o: src/peripherals.c
@@ -27,6 +27,9 @@ build/i2c.o: src/i2c.c
 
 build/main.o: src/main.c
 	$(CC) $(CFLAGS) -c src/main.c -o build/main.o
+
+build/startup.o: src/startup.c
+	$(CC) $(CFLAGS) -c src/startup.c -o build/startup.o
 
 #cleans project directory
 .PHONY: clean
