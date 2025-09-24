@@ -36,20 +36,20 @@
 #define GPIOF_PUPDR   (*(volatile uint32_t*)0x4800140C) // GPIOF pull up/down register
 #define GPIOF_AFRH    (*(volatile uint32_t*)0x48001424) // GPIOF alt function register
 
-#define I2C1_CR1      (*(volatile uint32_t*)0x40005400) //
-#define I2C1_CR2      (*(volatile uint32_t*)0x40005404) //
-#define I2C1_TIMINGR  (*(volatile uint32_t*)0x40005410) //
-#define I2C1_ISR      (*(volatile uint32_t*)0x40005418) //
-#define I2C1_ICR      (*(volatile uint32_t*)0x4000541C) //
-#define I2C1_TXDR     (*(volatile uint32_t*)0x40005428) //
-#define I2C1_RXDR     (*(volatile uint32_t*)0x4000542C) //
+#define I2C1_CR1      (*(volatile uint32_t*)0x40005400) // I2C1 configuration register
+#define I2C1_CR2      (*(volatile uint32_t*)0x40005404) // I2C1 transaction/control register
+#define I2C1_TIMINGR  (*(volatile uint32_t*)0x40005410) // I2C1 timing register
+#define I2C1_ISR      (*(volatile uint32_t*)0x40005418) // I2C1 status register
+#define I2C1_ICR      (*(volatile uint32_t*)0x4000541C) // I2C1 flag clearing register
+#define I2C1_TXDR     (*(volatile uint32_t*)0x40005428) // I2C1 transmit data register
+#define I2C1_RXDR     (*(volatile uint32_t*)0x4000542C) // I2C1 receive data register
 
-#define I2C2_CR1      (*(volatile uint32_t*)0x40005800) //
-#define I2C2_CR2      (*(volatile uint32_t*)0x40005804) //
-#define I2C2_TIMINGR  (*(volatile uint32_t*)0x40005810) //
-#define I2C2_ISR      (*(volatile uint32_t*)0x40005818) //
-#define I2C2_ICR      (*(volatile uint32_t*)0x4000581C) //
-#define I2C2_TXDR     (*(volatile uint32_t*)0x40005828) //
-#define I2C2_RXDR     (*(volatile uint32_t*)0x4000582C) //
+#define I2C2_CR1      (*(volatile uint32_t*)0x40005800) // I2C2 configuration register
+#define I2C2_CR2      (*(volatile uint32_t*)0x40005804) // I2C2 transaction/control register
+#define I2C2_TIMINGR  (*(volatile uint32_t*)0x40005810) // I2C2 timing register
+#define I2C2_ISR      (*(volatile uint32_t*)0x40005818) // I2C2 status register
+#define I2C2_ICR      (*(volatile uint32_t*)0x4000581C) // I2C2 flag clearing register
+#define I2C2_TXDR     (*(volatile uint32_t*)0x40005828) // I2C2 transmit data register
+#define I2C2_RXDR     (*(volatile uint32_t*)0x4000582C) // I2C2 receive data register
 
 #endif
