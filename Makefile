@@ -28,9 +28,6 @@ build/i2c.o: src/i2c.c
 build/main.o: src/main.c
 	$(CC) $(CFLAGS) -c src/main.c -o build/main.o
 
-build/startup.o: src/startup.c
-	$(CC) $(CFLAGS) -c src/startup.c -o build/startup.o
-
 #cleans project directory
 .PHONY: clean
 clean: 
