@@ -12,6 +12,5 @@ int main(void) {
 	uint8_t chipid;
 	uint8_t data[6];
 	bmp390_chip_id(&chipid);
-	i2c1_reset();
 	bmp390_read_data(data);
 }

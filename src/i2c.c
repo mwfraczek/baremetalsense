@@ -107,15 +107,7 @@ int i2c1_read(uint8_t slave_addr, uint8_t reg_addr, uint8_t* data, uint8_t len) 
 	I2C1_CR2 |= (0x0 << 24); // RELOAD=0 
 	I2C1_CR2 |= (0x1 << 25); // AUTOEND=1
 	I2C1_CR2 |= (1 << 13); // Generate repeated START
-	for (uint8_t i = 0; i < len; i++) {
-		timeout = 1000;
-		while (!(I2C1_ISR & (1 << 2)) && timeout--); // Wait for RXNE
-		if (!timeout) {
-			I2C1_CR1 &= ~(1<<0);
-			I2C1_ICR = 0xFFFFFFFF;
-			I2C1_CR1 |= (1<<0);
-			return -1;
-		}
+	for (uint8_t i = 0; i <= len; i++) {
 		data[i] = I2C1_RXDR;
 	}
 	if (I2C1_ISR & (1 << 4)) { // NACKF check
@@ -123,7 +115,6 @@ int i2c1_read(uint8_t slave_addr, uint8_t reg_addr, uint8_t* data, uint8_t len) 
 		return -1;
 	}
 	timeout = 1000;
-	I2C1_CR2 |= (1 << 14); // NBYTES = len (from sensor)
 	while (!(I2C1_ISR & (1 << 5)) && timeout--); // Wait for STOPF
 	if (!timeout) {
 		return -1;
