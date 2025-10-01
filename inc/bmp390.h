@@ -8,7 +8,7 @@
 #define BMP_OSR_ADDR      0x1C
 #define BMP_ODR_ADDR      0x1D
 #define BMP_CONFIG_ADDR   0x1F
-#define BMP_SLAVE_ADDR    0x77
+#define BMP_SLAVE_ADDR    0x76
 
 typedef enum {
 	BMP_OK = 0, BMP_TIMEOUT = -1, BMP_NACK = -2, BMP_NOT_READY = -3
