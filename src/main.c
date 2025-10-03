@@ -10,10 +10,11 @@ int main(void) {
 	uint8_t bmp_data = 0;
 	BMP_Error code; 
 	
-	// initialization of system clock, gpio pins, and i2c1 clock
+	// initialization of system clock, gpio pins, i2c1 clock, and timer counter
 	rcc_enable();
 	gpio_mode();
 	i2c1_init();
+	tim2_enable();
 
 	// sensor setup
 	code = bmp390_setup(1, 1, 0x3, 0x04);
