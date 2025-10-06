@@ -20,7 +20,7 @@ void i2c1_init(void) {
 	GPIOB_MODER |= (0xA << 16); // Alternate function
 	GPIOB_OTYPER |= (0x3 << 8); // Open-drain
 	GPIOB_OSPEEDR &= ~(0xF << 16); // Clear
-	GPIOB_OSPEEDR |= (0x0 << 16); // Medium speed
+	GPIOB_OSPEEDR |= (0x0 << 16); // Medium speed (0x5), High (0xA), Low (0x0)
 	GPIOB_PUPDR &= ~(0xF << 16); // No pull-up/pull-down (use external pull-ups)
 	GPIOB_AFRH &= ~(0xFF << 0); // Clear
 	GPIOB_AFRH |= (0x44 << 0); // AF4 for PB8, PB9 (I2C1)
@@ -30,7 +30,7 @@ void i2c1_init(void) {
 	I2C1_CR1 &= ~(0x1F << 8); // Clear noise filter bits
 	I2C1_CR1 |= (0x2 << 8); // 2-cycle digital filter
 	I2C1_CR1 &= ~(1 << 12); // Enable analog filter
-	I2C1_TIMINGR = 0x10080803; // 100 kHz timing for 16 MHz HSI16
+	I2C1_TIMINGR = 0x10080202; // 100 kHz timing for 16 MHz HSI16 - 10080803
 	I2C1_CR1 &= ~(1 << 17); // Enable clock stretching
 
 	//Set I2C1 clock source to HSI16
