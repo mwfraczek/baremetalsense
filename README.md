@@ -48,13 +48,13 @@ This repository features a **bare-metal I2C driver** and application level code 
   1. Issues achieving targeted 100kHz communication frequency. Currently oscilloscope verified 85kHz. 
   1. Multi-byte read fails to ACK second-byte transmission, and subsequently hangs/stretches. Debugging in progress.
 - **Next Steps**: 
-  1. Target 100kHz with clean waveform.
-  2. Implement hardware based delay function for precise, non-blocking delays. ☑️ _(see Implementation Notes)_
+  1. Target 100kHz with clean waveform. ☑️
+  2. Implement hardware based delay function for precise, non-blocking delays. ☑️ 
   3. Resolve multi-byte read issue.
 
 
 ## Implementation Notes: 📓
-#### TIM2 Hardware Delay Implementation: 
+#### ✳️<ins>TIM2 Hardware Delay Implementation</ins> - 10/03/2025: 
 To enable precise, non-blocking delays BMP390 reads and LED feedback: 
 1. Select clock source to drive System Clock (RCC selection sets SYSCLK).
    - Note: RCC_CFGR can prescale SYSCLK before TIM2 prescaling.
@@ -64,7 +64,20 @@ To enable precise, non-blocking delays BMP390 reads and LED feedback:
 4. Set UG bit in EGR register to apply configuration settings.
    - Note: ARPE bit in CR1 should be set _**IF**_ ARR register is to dynamically used/changes while TIM2 is operating. 
 5. Set CEN bit in CR1 to enable TIM2 counter. 
-6. Implement ‘delay_ms’ function leveraging TIM2 hardware timer for precise, non-blocking delays. 
+6. Implement ‘delay_ms’ function leveraging TIM2 hardware timer for precise, non-blocking delays.
+
+#### ✳️100kHz Targeted Communication Frequency - 10/05/2025: 
+1. Initial ST provided TIMINGR register suggested value `0x10080803` resulted in 85kHz frequency.
+2. Review of TIMINGR register shows SCL high (SCLH) and low (SCLL) periods can be manipulated via bitfields [15:8] and [7:0], respectively. Shortening SCL period should result in increased frequency. IMAGE A presents the register. 
+3. Updated TIMINGR register bitfields `0x10080202` results in targeted 100kHz frequency. IMAGE B shows oscilloscope verified 101.29kHz of the `bmp390_setup` function execution.
+   - Note: Similar results were observed with I2C clock prescaler removal and increasing SCL high and low period times (i.e. `0x00080F0F`). Further investigation into register configurations and waveform analysis is recommended to optimize performance, though this adjustment highlights the TIMINGR register's flexibility in fine-tuning I2C timing frequencies.
+
+#### IMAGE A:
+<img width="792" height="160" alt="image" src="https://github.com/user-attachments/assets/dd68f34c-093d-40df-881d-77424e299123" />
+
+#### IMAGE B:
+<img width="698" height="433" alt="image" src="https://github.com/user-attachments/assets/ebcd27da-a846-438e-8e05-11eb927fe716" />
+
 
 ## Contributions: 👤
 - **Author:** Michael Fraczek
