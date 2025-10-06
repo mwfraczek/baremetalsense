@@ -45,7 +45,6 @@ This repository features a **bare-metal I2C driver** and application level code 
 - **Current**:
   1. Successfully reads pressure data bytes (0x04-0x06) in single-byte read function calls with LED feedback. 
 - **Challenges**:
-  1. Issues achieving targeted 100kHz communication frequency. Currently oscilloscope verified 85kHz. 
   1. Multi-byte read fails to ACK second-byte transmission, and subsequently hangs/stretches. Debugging in progress.
 - **Next Steps**: 
   1. Target 100kHz with clean waveform. ☑️
