@@ -15,8 +15,11 @@ all: bin/main.elf bin/main.bin
 bin/main.bin: bin/main.elf
 	$(OBJCOPY) -O binary bin/main.elf bin/main.bin
 
-bin/main.elf: build/peripherals.o build/bmp390.o build/i2c.o build/main.o build/startup.o build/system.o 
-	$(CC) $(CFLAGS) $(LDFLAGS) -o bin/main.elf build/peripherals.o build/bmp390.o build/i2c.o build/main.o build/startup.o build/system.o
+bin/main.elf: build/utils.o build/peripherals.o build/bmp390.o build/i2c.o build/main.o build/startup.o build/system.o 
+	$(CC) $(CFLAGS) $(LDFLAGS) -o bin/main.elf build/utils.o build/peripherals.o build/bmp390.o build/i2c.o build/main.o build/startup.o build/system.o
+
+build/utils.o: drivers/utils.c
+	$(CC) $(CFLAGS) -c drivers/utils.c -o build/utils.o
 
 build/peripherals.o: drivers/peripherals.c
 	$(CC) $(CFLAGS) -c drivers/peripherals.c -o build/peripherals.o
