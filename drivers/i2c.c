@@ -1,157 +1,57 @@
-// I2C Driver Library for STM32L476RG (Nucleo) applications
+// I2C Driver Library for STM32L476RG applications
+
 #include "stm32l476.h"
 #include "i2c.h"
 #include "peripherals.h"
 #include "bmp390.h"
+#include "utils.h"
 
-/*Per STM32, PE must be low >=3 APB cycles to reset. Ensured by SW sequence below. 
-CR1 registers not impacted upon reset. Impacted register bits: 
-I2C_CR2 = START, STOP, NACK
-I2C_ISR = BUSY, TXE, TXIS, RXNE, ADDR, NACKF, TCR, TC, STOPF, BERR, ARLO, OVR*/
+// Reset I2C1 peripheral by toggling PE bit 
 void i2c1_reset(void) { 
 	I2C1_CR1 &= ~(1 << 0); 
 	while (I2C1_CR1 & (1 << 0));
 	I2C1_CR1 |= (1 << 0); 
 }
 
+// Configure I2C1 peripheral 
 void i2c1_init(void) {
-	// Configure PB8 (SCL) and PB9 (SDA) for I2C1 (AF4)
-	GPIOB_MODER &= ~(0xF << 16); // Clear PB8, PB9
-	GPIOB_MODER |= (0xA << 16); // Alternate function
-	GPIOB_OTYPER |= (0x3 << 8); // Open-drain
-	GPIOB_OSPEEDR &= ~(0xF << 16); // Clear
-	GPIOB_OSPEEDR |= (0x0 << 16); // Medium speed (0x5), High (0xA), Low (0x0)
-	GPIOB_PUPDR &= ~(0xF << 16); // No pull-up/pull-down (use external pull-ups)
-	GPIOB_AFRH &= ~(0xFF << 0); // Clear
-	GPIOB_AFRH |= (0x44 << 0); // AF4 for PB8, PB9 (I2C1)
-
-	// Configure I2C1
-	I2C1_CR1 &= ~(1 << 0); // Disable I2C1
-	I2C1_CR1 &= ~(0x1F << 8); // Clear noise filter bits
-	I2C1_CR1 |= (0x2 << 8); // 2-cycle digital filter
-	I2C1_CR1 &= ~(1 << 12); // Enable analog filter
-	I2C1_TIMINGR = 0x10080202; // 100 kHz timing for 16 MHz HSI16 - 10080803
-	I2C1_CR1 &= ~(1 << 17); // Enable clock stretching
-
-	//Set I2C1 clock source to HSI16
-	RCC_CCIPR &= ~(0x3 << 12); // Clear I2C1SEL
-	RCC_CCIPR |= (1 << 12); // HSI16 (01)
-
-	//Enable I2C1
-	I2C1_CR1 |= (1 << 0); // Enable peripheral
+	I2C1_CR1 &= ~(1 << 0);   // Disable I2C1 peripheral 
+	// ANF Enable, DNF Disable, Stretching Enable
+	I2C1_CR1 &= ~(1 << 12) | ~(0xF << 8) | ~(1 << 17);
+	I2C1_TIMINGR = 0x30420F13; // 100 kHz timing
+	I2C1_CR1 |=  (1 << 0);     // Enable peripheral
 }
 
-int i2c1_write_reg(uint8_t slave_addr, uint8_t reg_addr) {
-        I2C1_CR2 &= ~(0x07FFFFFF << 0); // Clear CR2 register
-        I2C1_CR2 |= (0x0 << 11); // Set addressing mode as 7-bit
-        I2C1_CR2 |= (slave_addr << 1); // Slave address
-        I2C1_CR2 |= (0x0 << 10); // Set transfer direction (w=0/r=1)
-        I2C1_CR2 |= (0x1 << 16); // Number of bytes to transfer
-        I2C1_CR2 |= (0x0 << 24); // RELOAD=0 
-        I2C1_CR2 |= (0x1 << 25); // AUTOEND=1
-        I2C1_CR2 |= (0x1 << 13); // Generate START condition
-
-        uint32_t timeout = 1000;
-        while (!(I2C1_ISR & (1 << 1)) && timeout--) { // Wait for empty data register TXIS
-                if (!timeout) {
-                        return -1; }
-        }
-        I2C1_TXDR = reg_addr; // Write register address
-        if (I2C1_ISR & (1 << 4)) { // NACKF check
-                I2C1_ICR |= (1 << 4); // Clear NACKF
-                return -1;
-        }
-        timeout = 1000;
-        while (!(I2C1_ISR & (1 << 5)) && timeout--); // Wait for STOPF
-        if (!timeout) {
-                return -1; }
-        I2C1_ICR |= (1 << 5); // Clear STOPF flag
-        return 0;
+// I2C1 write function 
+int i2c1_write(uint8_t slave_addr, uint8_t reg_addr, const uint8_t data, uint8_t len) {
+	I2C1_CR2 &= ~(0x7FFFFFF);       // Clear CR2 register bits
+	I2C1_CR2 |=  (slave_addr << 1); // 7-bit slave address in write direction
+	I2C1_CR2 |=  ((len+1) << 16);   // NBYTES to transfer + register addr
+	I2C1_CR2 |=  (1 << 25);         // Set AUTOEND mode
+	I2C1_CR2 |=  (1 << 13);         // Send START
+	while (!(I2C1_ISR & (1 << 1))); // Wait for TXIS flag (TXDR is empty & ready)
+	I2C1_TXDR = reg_addr; 		// Write register address
+	while (!(I2C1_ISR & (1 << 1))); // Wait for TXIS flag
+	I2C1_TXDR = data;		// Write data byte 
+	while (!(I2C1_ISR & (1 << 5))); // Wait for STOP
 }
 
-int i2c1_write(uint8_t slave_addr, uint8_t reg_addr, uint8_t data) {
-	I2C1_CR2 &= ~(0x07FFFFFF << 0); // Clear CR2 register
-	I2C1_CR2 |= (0x0 << 11); // Set addressing mode as 7-bit
-	I2C1_CR2 |= (slave_addr << 1); // Slave address
-	I2C1_CR2 |= (0x0 << 10); // Set transfer direction (w=0/r=1)
-	I2C1_CR2 |= (0x2 << 16); // Number of bytes to transfer
-	I2C1_CR2 |= (0x0 << 24); // RELOAD=0 
-	I2C1_CR2 |= (0x1 << 25); // AUTOEND=1
-	I2C1_CR2 |= (0x1 << 13); // Generate START condition
+// I2C1 read function
+int i2c1_read(uint8_t slave_addr, uint8_t reg_addr, uint8_t *data) {
+	// Write Phase
+	I2C1_CR2 &= ~(0x7FFFFFF);       // Clear CR2 register bits
+        I2C1_CR2 |=  (slave_addr << 1); // 7-bit slave address in write direction
+	I2C1_CR2 |=  (1 << 16);         // NBYTES to transfer (reg address)
+	I2C1_CR2 |=  (1 << 13);         // Send START
+	while (!(I2C1_ISR & (1 << 1))); // Wait for TXIS flag (TXDR is empty & ready)
+        I2C1_TXDR = reg_addr;           // Write register address
 
-	uint32_t timeout = 1000;
-	while (!(I2C1_ISR & (1 << 1)) && timeout--) { // Wait for empty data register TXIS
-		if (!timeout) {
-			return -1; }
-	}
-	I2C1_TXDR = reg_addr; // Write register address
-	if (I2C1_ISR & (1 << 4)) { // NACKF check
-		I2C1_ICR |= (1 << 4); // Clear NACKF
-		return -1;
-	}
-	timeout = 1000;
-	while (!(I2C1_ISR & (1 << 1)) && timeout--) { // Wait for empty data register TXIS
-		if (!timeout) {
-			return -1; }
-	}
-	I2C1_TXDR = data; // Write byte	
-	if (I2C1_ISR & (1 << 4)) { // NACKF check
-		I2C1_ICR |= (1 << 4); // Clear NACKF
-		return -1;
-	}
-	timeout = 1000;
-	while (!(I2C1_ISR & (1 << 5)) && timeout--); // Wait for STOPF
-	if (!timeout) {
-		return -1; }
-	I2C1_ICR |= (1 << 5); // Clear STOPF flag
-	return 0;
-}
-
-int i2c1_read(uint8_t slave_addr, uint8_t* data, uint8_t len) {
-	I2C1_CR2 &= ~(0x07FFFFFF << 0); // Clear CR2 register
-	I2C1_CR2 |= (0x0 << 11);       // 7-bit addressing
-	I2C1_CR2 |= (slave_addr << 1); // Slave address
-	I2C1_CR2 |= (0x1 << 10); // Read direction (w=0/r=1)
-	I2C1_CR2 |= (len << 16); // NBYTES = len (from sensor)
-	I2C1_CR2 |= (0x0 << 24); // RELOAD=0 
-	I2C1_CR2 &= ~(0x1 << 25); // AUTOEND=1
-	I2C1_CR2 |= (1 << 13); // Generate repeated START
-	
-	uint32_t timeout = 10000;
-	for (uint8_t i = 0; i < len; i++) {
-		while (!(I2C1_ISR & (1 << 2)) && timeout--) { // Wait for RXNE
-			if (!timeout)
-				return -1;
-		}
-		if (I2C1_ISR & (1 << 4)) { // NACKF check
-			I2C1_ICR |= (1 << 4); // Clear 
-			return -1;
-		}
-		if (I2C1_ISR & (1 << 8)) { // BERR check
-                        I2C1_ICR |= (1 << 8); // Clear 
-                        return -1;
-		}
-		if (I2C1_ISR & (1 << 9)) { // ARLO check
-                        I2C1_ICR |= (1 << 9); // Clear
-                        return -1;
-		}
-		if (I2C1_ISR & (1 << 10)) { // OVR check
-                        I2C1_ICR |= (1 << 10); // Clear
-                        return -1;
-		}
-		data[i] = I2C1_RXDR; 
-		timeout = 10000;
-	}
-	while (!(I2C1_ISR & (1 << 6)) && timeout--) { // Wait for RXNE
-		if (!timeout)
-			return -1;
-	}
-	I2C1_CR2 |= (1 << 14); // Generate STOP
-	timeout = 10000;
-	while (!(I2C1_ISR & (1 << 5)) && timeout--); // Wait for STOPF
-	if (!timeout) {
-		return -1;
-	}
-	I2C1_ICR |= (1 << 5); // Clear STOPF flag
-	return 0;
+	//Read Phase
+	I2C1_CR2 &= ~(0x7FFFC00);       // Clear CR2 register bits (leave SADD unchanged)
+	I2C1_CR2 |=  (1 << 10);         // Read direction
+	I2C1_CR2 |=  (1 << 16);         // NBYTES to transfer (data)
+	I2C1_CR2 |=  (1 << 25);         // Set AUTOEND mode
+	I2C1_CR2 |=  (1 << 13);         // Send repeated START
+	while (!(I2C1_ISR & (1 << 2))); // Wait for RXDR to be empty 
+	*data = I2C1_RXDR;		// Read RXDR 
 }
