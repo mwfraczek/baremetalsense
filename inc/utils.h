@@ -1,0 +1,10 @@
+#ifndef UTILS_H
+#define UTILS_H
+
+#include <stdint.h>
+
+void delay_ms(uint32_t ms);
+void led_blink_slow(void); 
+void led_blink_fast(void);
+
+#endif
