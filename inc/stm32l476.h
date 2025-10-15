@@ -3,14 +3,13 @@
 
 #include <stdint.h>
 
-#define RCC_AHB2ENR   (*(volatile uint32_t*)0x4002104C) // clock - Port B/F GPIO 
-#define RCC_APB1ENR1  (*(volatile uint32_t*)0x40021058) // clock - Port B I2C1
-#define RCC_CR        (*(volatile uint32_t*)0x40021000) // clock - HSI16 oscillator
-#define RCC_CCIPR     (*(volatile uint32_t*)0x40021088) // clock source select
+#define RCC_AHB2ENR   (*(volatile uint32_t*)0x4002104C) // peripheral clock enable (GPIOA/B)
+#define RCC_APB1ENR1  (*(volatile uint32_t*)0x40021058) // peripheral clock enable (I2C1)
+#define RCC_CR        (*(volatile uint32_t*)0x40021000) // clock control 
+#define RCC_CCIPR     (*(volatile uint32_t*)0x40021088) // peripheral independent clock source select
 #define RCC_APB1RSTR1 (*(volatile uint32_t*)0x40021038) // clock reset 
 #define RCC_CFGR      (*(volatile uint32_t*)0x40021008) // clock configuration
 
-// TIM2 is on the APB1 Bus
 #define TIM2_CR1      (*(volatile uint32_t*)0x40000000) // TIM2 control register 
 #define TIM2_SMCR     (*(volatile uint32_t*)0x40000008) // TIM2 slave mode control  
 #define TIM2_SR       (*(volatile uint32_t*)0x40000010) // TIM2 status register (flags)
